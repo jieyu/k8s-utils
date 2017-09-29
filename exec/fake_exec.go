@@ -14,13 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package testingexec
+package exec
 
 import (
 	"fmt"
 	"io"
-
-	"k8s.io/utils/exec"
 )
 
 // A simple scripted Interface type.
@@ -30,9 +28,9 @@ type FakeExec struct {
 	LookPathFunc  func(string) (string, error)
 }
 
-type FakeCommandAction func(cmd string, args ...string) exec.Cmd
+type FakeCommandAction func(cmd string, args ...string) Cmd
 
-func (fake *FakeExec) Command(cmd string, args ...string) exec.Cmd {
+func (fake *FakeExec) Command(cmd string, args ...string) Cmd {
 	if fake.CommandCalls > len(fake.CommandScript)-1 {
 		panic(fmt.Sprintf("ran out of Command() actions. Could not handle command [%d]: %s args: %v", fake.CommandCalls, cmd, args))
 	}
@@ -60,9 +58,9 @@ type FakeCmd struct {
 	Stderr               io.Writer
 }
 
-var _ exec.Cmd = &FakeCmd{}
+var _ Cmd = &FakeCmd{}
 
-func InitFakeCmd(fake *FakeCmd, cmd string, args ...string) exec.Cmd {
+func InitFakeCmd(fake *FakeCmd, cmd string, args ...string) Cmd {
 	fake.Argv = append([]string{cmd}, args...)
 	return fake
 }
@@ -132,7 +130,7 @@ type FakeExitError struct {
 	Status int
 }
 
-var _ exec.ExitError = FakeExitError{}
+var _ ExitError = FakeExitError{}
 
 func (fake FakeExitError) String() string {
 	return fmt.Sprintf("exit %d", fake.Status)
